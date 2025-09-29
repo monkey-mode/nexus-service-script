@@ -286,7 +286,7 @@ install_logserver() {
     fi
 
     # Create logserver script
-    local logserver_script="/tmp/nexus-logserver.sh"
+    local logserver_script="/usr/local/bin/nexus-logserver.sh"
     cat > "$logserver_script" << 'EOF'
 #!/bin/bash
 set -euo pipefail
