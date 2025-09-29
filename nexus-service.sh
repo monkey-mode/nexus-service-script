@@ -137,7 +137,6 @@ SyslogIdentifier=$service_name
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
-ProtectHome=true
 ReadWritePaths=$work_dir
 
 [Install]
