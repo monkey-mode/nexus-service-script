@@ -23,6 +23,10 @@ A comprehensive service management script for Nexus Network nodes and logserver.
 # Install service with node ID
 ./nexus-service.sh install --node-id 12345
 
+# Install with max-difficulty setting
+./nexus-service.sh install --wallet 0x1234567890abcdef1234567890abcdef12345678 --max-difficulty MEDIUM
+./nexus-service.sh install --node-id 12345 --max-difficulty LARGE
+
 # Service control
 ./nexus-service.sh start
 ./nexus-service.sh stop
@@ -92,6 +96,7 @@ chmod +x /root/.nexus/nexus-service.sh
 # Replace with your actual wallet address or node ID
 /root/.nexus/nexus-service.sh install --wallet YOUR_WALLET_ADDRESS_HERE
 # OR use node ID: /root/.nexus/nexus-service.sh install --node-id YOUR_NODE_ID_HERE
+# Optional: add max-difficulty: --max-difficulty MEDIUM
 /root/.nexus/nexus-service.sh start
 
 # Install and start the logserver (HTTP on port 80)
@@ -110,6 +115,11 @@ The script uses the following default values:
 
 **Required Parameters:**
 - Either `--node-id <id>` or `--wallet <address>` must be provided when installing the service
+
+**Optional Parameters:**
+- `--max-difficulty <level>`: Set the maximum task difficulty level
+  - Valid values: `SMALL`, `SMALL_MEDIUM`, `MEDIUM`, `LARGE`, `EXTRA_LARGE`, `EXTRA_LARGE2`
+  - If not specified, the service will use the default difficulty setting
 
 ## Security Features
 

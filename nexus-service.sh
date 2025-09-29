@@ -83,6 +83,20 @@ validate_node_id() {
     fi
 }
 
+validate_max_difficulty() {
+    local difficulty="$1"
+    case "$difficulty" in
+        SMALL|SMALL_MEDIUM|MEDIUM|LARGE|EXTRA_LARGE|EXTRA_LARGE2)
+            # Valid difficulty level
+            ;;
+        *)
+            log_error "Invalid max-difficulty value: $difficulty"
+            log_error "Valid values are: SMALL, SMALL_MEDIUM, MEDIUM, LARGE, EXTRA_LARGE, EXTRA_LARGE2"
+            exit 1
+            ;;
+    esac
+}
+
 check_nexus_binary() {
     if [[ ! -f "$DEFAULT_NEXUS_BIN" ]]; then
         log_error "Nexus binary not found at: $DEFAULT_NEXUS_BIN"
@@ -138,6 +152,7 @@ EOF
 install_service() {
     local node_id=""
     local wallet_addr=""
+    local max_difficulty=""
     local use_wallet=false
 
     # Parse command line arguments
@@ -161,6 +176,14 @@ install_service() {
                 use_wallet=true
                 shift 2
                 ;;
+            --max-difficulty)
+                if [[ -z "${2:-}" ]]; then
+                    log_error "Missing value for --max-difficulty"
+                    exit 1
+                fi
+                max_difficulty="$2"
+                shift 2
+                ;;
             *)
                 log_error "Unknown option: $1"
                 show_usage
@@ -181,6 +204,11 @@ install_service() {
         validate_wallet_address "$wallet_addr"
     else
         validate_node_id "$node_id"
+    fi
+
+    # Validate max-difficulty if provided
+    if [[ -n "$max_difficulty" ]]; then
+        validate_max_difficulty "$max_difficulty"
     fi
 
     check_nexus_binary
@@ -217,6 +245,12 @@ install_service() {
     else
         log_info "Using node ID: $node_id"
         local exec_cmd="$DEFAULT_NEXUS_BIN start --headless --node-id $node_id"
+    fi
+
+    # Add max-difficulty flag if provided
+    if [[ -n "$max_difficulty" ]]; then
+        log_info "Setting max-difficulty: $max_difficulty"
+        exec_cmd="$exec_cmd --max-difficulty $max_difficulty"
     fi
 
     # Create systemd service file
@@ -480,10 +514,12 @@ show_usage() {
 Usage: $SCRIPT_NAME <command> [options]
 
 COMMANDS:
-    install [--node-id <id> | --wallet <wallet-address>]
+    install [--node-id <id> | --wallet <wallet-address>] [--max-difficulty <level>]
         Install and configure the Nexus Network service
         --node-id <id>        Use specific node ID (required if not using wallet)
         --wallet <address>    Use wallet address for registration (required if not using node-id)
+        --max-difficulty <level>  Set maximum task difficulty (optional)
+                                Valid values: SMALL, SMALL_MEDIUM, MEDIUM, LARGE, EXTRA_LARGE, EXTRA_LARGE2
 
     start                     Start the Nexus Network service
     stop                      Stop the Nexus Network service
@@ -503,6 +539,8 @@ COMMANDS:
 EXAMPLES:
     $SCRIPT_NAME install --wallet 0x1234567890abcdef1234567890abcdef12345678
     $SCRIPT_NAME install --node-id 12345
+    $SCRIPT_NAME install --wallet 0x1234567890abcdef1234567890abcdef12345678 --max-difficulty MEDIUM
+    $SCRIPT_NAME install --node-id 12345 --max-difficulty LARGE
     $SCRIPT_NAME start
     $SCRIPT_NAME logs 100
     $SCRIPT_NAME install-logserver
