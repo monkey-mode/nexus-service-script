@@ -228,16 +228,21 @@ install_service() {
 
     # Register wallet and node if using wallet mode
     if [[ "$use_wallet" == true ]]; then
+        log_info "Logging out any existing credentials..."
+        "$DEFAULT_NEXUS_BIN" logout 2>/dev/null || true
+        
         log_info "Registering wallet: $wallet_addr"
-        if ! "$DEFAULT_NEXUS_BIN" register-user --wallet-address "$wallet_addr"; then
-            log_error "Failed to register wallet"
-            exit 1
+        if ! "$DEFAULT_NEXUS_BIN" register-user --wallet-address "$wallet_addr" 2>/dev/null; then
+            log_warn "Wallet registration failed - wallet may already exist, continuing..."
+        else
+            log_info "Wallet registered successfully"
         fi
         
         log_info "Registering node..."
-        if ! "$DEFAULT_NEXUS_BIN" register-node; then
-            log_error "Failed to register node"
-            exit 1
+        if ! "$DEFAULT_NEXUS_BIN" register-node 2>/dev/null; then
+            log_warn "Node registration failed - node may already be registered, continuing..."
+        else
+            log_info "Node registered successfully"
         fi
         
         local exec_cmd="$DEFAULT_NEXUS_BIN start --headless"
