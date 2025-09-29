@@ -329,10 +329,6 @@ while true; do
         
         echo "=== Service Status ==="
         systemctl status nexus-network --no-pager -l || echo "Service not running"
-        echo ""
-        
-        echo "=== Recent Logs ==="
-        journalctl -u nexus-network -n 10 --no-pager || echo "No logs available"
         
     } | nc -l -p "$PORT" -q 1 2>/dev/null || {
         log_error "Failed to bind to port $PORT. Port may be in use."
